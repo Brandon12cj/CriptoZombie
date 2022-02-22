@@ -1,5 +1,5 @@
 //SPDX-License-Ientifier: MIT
-pragma solidity ^0.4.25;
+pragma solidity ^0.4.19;
 
 contract ZombieFactory {
 
