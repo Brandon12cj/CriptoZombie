@@ -1,4 +1,3 @@
-//SPDX-License-Ientifier: MIT
 pragma solidity ^0.4.19;
 
 contract ZombieFactory {
@@ -7,7 +6,6 @@ contract ZombieFactory {
 
     uint dnaDigits = 16;
     uint dnaModulus = 10 ** dnaDigits;
-    mapping(uint => address) public duenoDelZb;
 
     struct Zombie {
         string name;
@@ -16,19 +14,25 @@ contract ZombieFactory {
 
     Zombie[] public zombies;
 
-    function _createZombie(string _name, uint _dna) private {
+    mapping (uint => address) public zombieToOwner;
+    mapping (address => uint) ownerZombieCount;
+
+    function _createZombie(string _name, uint _dna) internal {
         uint id = zombies.push(Zombie(_name, _dna)) - 1;
-        emit NewZombie(id, _name, _dna);
-        duenoDelZb[id] = msg.sender;
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender]++;
+        NewZombie(id, _name, _dna);
     }
 
     function _generateRandomDna(string _str) private view returns (uint) {
-        uint rand = uint(keccak256(abi.encodePacked(_str)));
+        uint rand = uint(keccak256(_str));
         return rand % dnaModulus;
     }
 
     function createRandomZombie(string _name) public {
+        require(ownerZombieCount[msg.sender] == 0);
         uint randDna = _generateRandomDna(_name);
+        randDna = randDna - randDna % 100;
         _createZombie(_name, randDna);
     }
 
